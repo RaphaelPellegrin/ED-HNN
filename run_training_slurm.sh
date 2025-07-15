@@ -39,24 +39,36 @@ echo "========================================"
 
 # Load necessary modules (adjust based on your cluster setup)
 echo "Loading modules..."
-module load python/3.9 2>&1
-module load cuda/11.8 2>&1
+# Try different module names for Python
+module load python 2>&1 || module load anaconda 2>&1 || echo "No Python module found, using system Python"
+module load cuda/11.8 2>&1 || echo "CUDA module not found"
+
+# Initialize conda if needed
+echo "Initializing conda..."
+conda init bash 2>&1 || echo "Conda init failed or already initialized"
 
 # Check available conda environments
 echo "Available conda environments:"
 conda info --envs 2>&1
 
-# Try to activate conda environment (adjust name as needed)
+# Try to activate a suitable conda environment
 echo "Activating conda environment..."
-if conda activate base 2>&1; then
+# Try different environment names that might have the required packages
+if conda activate gpu_venv 2>&1; then
+    echo "Activated gpu_venv environment"
+elif conda activate unigcn_venv 2>&1; then
+    echo "Activated unigcn_venv environment"
+elif conda activate unignn_gpu_venv 2>&1; then
+    echo "Activated unignn_gpu_venv environment"
+elif conda activate base 2>&1; then
     echo "Activated base environment"
 else
-    echo "Warning: Could not activate conda environment"
+    echo "Warning: Could not activate any conda environment"
 fi
 
 # Install missing dependencies if needed
 echo "Installing/checking dependencies..."
-pip install configargparse 2>&1
+pip install configargparse numpy torch torch_geometric 2>&1
 
 # Check CUDA availability
 echo "Checking CUDA availability..."
