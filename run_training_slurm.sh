@@ -74,7 +74,7 @@ source /n/home04/rpellegrinext/miniconda3/etc/profile.d/conda.sh
 # # Try installing torch-scatter with specific version that matches PyTorch
 # pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
 
-conda activate edhnn_env
+conda activate /n/home04/rpellegrinext/edhnn_env
 
 # If the above fails, try the default installation
 if [ $? -ne 0 ]; then
