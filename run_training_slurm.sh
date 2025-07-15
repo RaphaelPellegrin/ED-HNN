@@ -43,48 +43,28 @@ echo "Loading modules..."
 module load python 2>&1 || module load anaconda 2>&1 || echo "No Python module found, using system Python"
 module load cuda/11.8 2>&1 || echo "CUDA module not found"
 
-# Use personal conda installation
-echo "Setting up personal conda environment..."
-export CONDA_ENVS_PATH="/n/home04/rpellegrinext/miniconda3/envs"
-export CONDA_PREFIX="/n/home04/rpellegrinext/miniconda3"
+# Use specific conda environment for EDGNN
+ENV_PREFIX="/n/holylabs/LABS/mweber_lab/Lab/envs/edhnn"
 
-# Source personal conda
+# Source conda
 source /n/home04/rpellegrinext/miniconda3/etc/profile.d/conda.sh
 
-# Check available conda environments
-echo "Available conda environments:"
-conda info --envs 2>&1
-
-# Try to activate a suitable conda environment
-echo "Activating conda environment..."
-# Try different environment names that might have the required packages
-if conda activate gpu_venv 2>&1; then
-    echo "Activated gpu_venv environment"
-elif conda activate unigcn_venv 2>&1; then
-    echo "Activated unigcn_venv environment"
-elif conda activate unignn_gpu_venv 2>&1; then
-    echo "Activated unignn_gpu_venv environment"
-elif conda activate base 2>&1; then
-    echo "Activated base environment"
-else
-    echo "Warning: Could not activate any conda environment"
+# If the environment doesn't exist, create it and install packages
+if [ ! -d "$ENV_PREFIX" ]; then
+    echo "Creating Conda environment at $ENV_PREFIX"
+    conda create --prefix "$ENV_PREFIX" python=3.11 -y
 fi
 
-# Install missing dependencies if needed (to personal environment)
-echo "Installing/checking dependencies..."
-pip install --user configargparse numpy torch torch_geometric 2>&1
+echo "Activating Conda environment..."
+conda activate "$ENV_PREFIX"
 
-# Add local bin to PATH and Python path
-export PATH="/n/home04/rpellegrinext/.local/bin:$PATH"
+# Install torch & torch-geometric stack (1.8.0+)
+echo "Installing PyTorch and GNN libraries..."
+pip install torch==1.8.1 torch-scatter torch-sparse torch-cluster torch-geometric -f https://data.pyg.org/whl/torch-1.8.1+cu111.html
 
-# Find the correct Python site-packages directory
-PYTHON_VERSION=$(python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
-PYTHON_SITE_PACKAGES="/n/home04/rpellegrinext/.local/lib/python${PYTHON_VERSION}/site-packages"
-export PYTHONPATH="$PYTHON_SITE_PACKAGES:$PYTHONPATH"
-
-echo "Python version: $PYTHON_VERSION"
-echo "Python site-packages: $PYTHON_SITE_PACKAGES"
-echo "PYTHONPATH: $PYTHONPATH"
+# Install other required packages
+echo "Installing other dependencies..."
+pip install configargparse numpy
 
 # Check CUDA availability
 echo "Checking CUDA availability..."
