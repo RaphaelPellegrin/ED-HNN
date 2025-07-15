@@ -45,40 +45,36 @@ module load cuda/11.8 2>&1 || echo "CUDA module not found"
 
 # Use specific conda environment for EDGNN
 # Check both possible locations
-ENV_PREFIX1="/n/holylabs/LABS/mweber_lab/Lab/envs/edhnn"
 ENV_PREFIX2="/n/home04/rpellegrinext/edhnn_env"
 
 # Source conda
 source /n/home04/rpellegrinext/miniconda3/etc/profile.d/conda.sh
 
-# Check if environment exists in either location
-if [ -d "$ENV_PREFIX1" ]; then
-    echo "✅ Conda environment exists at $ENV_PREFIX1"
-    echo "Activating existing environment..."
-    conda activate "$ENV_PREFIX1"
-    ENV_PREFIX="$ENV_PREFIX1"
-elif [ -d "$ENV_PREFIX2" ]; then
-    echo "✅ Conda environment exists at $ENV_PREFIX2"
-    echo "Activating existing environment..."
-    conda activate "$ENV_PREFIX2"
-    ENV_PREFIX="$ENV_PREFIX2"
-else
-    echo "❌ Conda environment does not exist in either location"
-    echo "Creating new environment in user directory..."
-    ENV_PREFIX="$ENV_PREFIX2"
-    conda create --prefix "$ENV_PREFIX" python=3.11 -y
-    conda activate "$ENV_PREFIX"
-fi
 
-echo "✅ Activated Conda environment at $ENV_PREFIX"
+# if [ -d "$ENV_PREFIX2" ]; then
+#     echo "✅ Conda environment exists at $ENV_PREFIX2"
+#     echo "Activating existing environment..."
+#     conda activate "$ENV_PREFIX2"
+#     ENV_PREFIX="$ENV_PREFIX2"
+# else
+#     echo "❌ Conda environment does not exist in either location"
+#     echo "Creating new environment in user directory..."
+#     ENV_PREFIX="$ENV_PREFIX2"
+#     conda create --prefix "$ENV_PREFIX" python=3.11 -y
+#     conda activate "$ENV_PREFIX"
+# fi
 
-# Install packages in correct order
-echo "Installing PyTorch first..."
-pip install torch
+# echo "✅ Activated Conda environment at $ENV_PREFIX"
 
-echo "Installing PyTorch Geometric and related packages..."
-# Try installing torch-scatter with specific version that matches PyTorch
-pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
+# # Install packages in correct order
+# echo "Installing PyTorch first..."
+# pip install torch
+
+# echo "Installing PyTorch Geometric and related packages..."
+# # Try installing torch-scatter with specific version that matches PyTorch
+# pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
+
+conda activate edhnn_env
 
 # If the above fails, try the default installation
 if [ $? -ne 0 ]; then
