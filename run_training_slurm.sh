@@ -74,6 +74,18 @@ fi
 echo "Installing/checking dependencies..."
 pip install --user configargparse numpy torch torch_geometric 2>&1
 
+# Add local bin to PATH and Python path
+export PATH="/n/home04/rpellegrinext/.local/bin:$PATH"
+
+# Find the correct Python site-packages directory
+PYTHON_VERSION=$(python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
+PYTHON_SITE_PACKAGES="/n/home04/rpellegrinext/.local/lib/python${PYTHON_VERSION}/site-packages"
+export PYTHONPATH="$PYTHON_SITE_PACKAGES:$PYTHONPATH"
+
+echo "Python version: $PYTHON_VERSION"
+echo "Python site-packages: $PYTHON_SITE_PACKAGES"
+echo "PYTHONPATH: $PYTHONPATH"
+
 # Check CUDA availability
 echo "Checking CUDA availability..."
 if command -v nvidia-smi &> /dev/null; then
