@@ -39,12 +39,24 @@ echo "========================================"
 
 # Load necessary modules (adjust based on your cluster setup)
 echo "Loading modules..."
-module load anaconda3 2>&1
+module load python/3.9 2>&1
 module load cuda/11.8 2>&1
 
-# Activate conda environment
+# Check available conda environments
+echo "Available conda environments:"
+conda info --envs 2>&1
+
+# Try to activate conda environment (adjust name as needed)
 echo "Activating conda environment..."
-source activate edhnn 2>&1
+if conda activate base 2>&1; then
+    echo "Activated base environment"
+else
+    echo "Warning: Could not activate conda environment"
+fi
+
+# Install missing dependencies if needed
+echo "Installing/checking dependencies..."
+pip install configargparse 2>&1
 
 # Check CUDA availability
 echo "Checking CUDA availability..."
