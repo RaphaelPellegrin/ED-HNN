@@ -49,18 +49,24 @@ ENV_PREFIX="/n/holylabs/LABS/mweber_lab/Lab/envs/edhnn"
 # Source conda
 source /n/home04/rpellegrinext/miniconda3/etc/profile.d/conda.sh
 
-# If the environment doesn't exist, create it and install packages
+# Try to create environment, if it fails due to permissions, use a different location
 if [ ! -d "$ENV_PREFIX" ]; then
     echo "Creating Conda environment at $ENV_PREFIX"
-    conda create --prefix "$ENV_PREFIX" python=3.11 -y
+    if conda create --prefix "$ENV_PREFIX" python=3.11 -y; then
+        echo "Successfully created environment at $ENV_PREFIX"
+    else
+        echo "Failed to create environment at $ENV_PREFIX, trying user directory..."
+        ENV_PREFIX="/n/home04/rpellegrinext/edhnn_env"
+        conda create --prefix "$ENV_PREFIX" python=3.11 -y
+    fi
 fi
 
-echo "Activating Conda environment..."
+echo "Activating Conda environment at $ENV_PREFIX..."
 conda activate "$ENV_PREFIX"
 
-# Install torch & torch-geometric stack (1.8.0+)
+# Install torch & torch-geometric stack (use available version)
 echo "Installing PyTorch and GNN libraries..."
-pip install torch==1.8.1 torch-scatter torch-sparse torch-cluster torch-geometric -f https://data.pyg.org/whl/torch-1.8.1+cu111.html
+pip install torch torch-scatter torch-sparse torch-cluster torch-geometric
 
 # Install other required packages
 echo "Installing other dependencies..."
