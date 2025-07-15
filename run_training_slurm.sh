@@ -43,9 +43,13 @@ echo "Loading modules..."
 module load python 2>&1 || module load anaconda 2>&1 || echo "No Python module found, using system Python"
 module load cuda/11.8 2>&1 || echo "CUDA module not found"
 
-# Initialize conda if needed
-echo "Initializing conda..."
-conda init bash 2>&1 || echo "Conda init failed or already initialized"
+# Use personal conda installation
+echo "Setting up personal conda environment..."
+export CONDA_ENVS_PATH="/n/home04/rpellegrinext/miniconda3/envs"
+export CONDA_PREFIX="/n/home04/rpellegrinext/miniconda3"
+
+# Source personal conda
+source /n/home04/rpellegrinext/miniconda3/etc/profile.d/conda.sh
 
 # Check available conda environments
 echo "Available conda environments:"
@@ -66,9 +70,9 @@ else
     echo "Warning: Could not activate any conda environment"
 fi
 
-# Install missing dependencies if needed
+# Install missing dependencies if needed (to personal environment)
 echo "Installing/checking dependencies..."
-pip install configargparse numpy torch torch_geometric 2>&1
+pip install --user configargparse numpy torch torch_geometric 2>&1
 
 # Check CUDA availability
 echo "Checking CUDA availability..."
