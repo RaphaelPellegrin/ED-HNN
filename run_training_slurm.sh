@@ -44,47 +44,39 @@ module load python 2>&1 || module load anaconda 2>&1 || echo "No Python module f
 module load cuda/11.8 2>&1 || echo "CUDA module not found"
 
 # Use specific conda environment for EDGNN
-# Check both possible locations
-ENV_PREFIX2="/n/home04/rpellegrinext/edhnn_env"
+ENV_PREFIX="/n/home04/rpellegrinext/edhnn_env"
 
 # Source conda
 source /n/home04/rpellegrinext/miniconda3/etc/profile.d/conda.sh
 
-
-# if [ -d "$ENV_PREFIX2" ]; then
-#     echo "✅ Conda environment exists at $ENV_PREFIX2"
-#     echo "Activating existing environment..."
-#     conda activate "$ENV_PREFIX2"
-#     ENV_PREFIX="$ENV_PREFIX2"
-# else
-#     echo "❌ Conda environment does not exist in either location"
-#     echo "Creating new environment in user directory..."
-#     ENV_PREFIX="$ENV_PREFIX2"
-#     conda create --prefix "$ENV_PREFIX" python=3.11 -y
-#     conda activate "$ENV_PREFIX"
-# fi
-
-# echo "✅ Activated Conda environment at $ENV_PREFIX"
-
-# # Install packages in correct order
-# echo "Installing PyTorch first..."
-# pip install torch
-
-# echo "Installing PyTorch Geometric and related packages..."
-# # Try installing torch-scatter with specific version that matches PyTorch
-# pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
-
-conda activate /n/home04/rpellegrinext/edhnn_env
-
-# If the above fails, try the default installation
-if [ $? -ne 0 ]; then
-    echo "Retrying torch-geometric installation with default method..."
-    pip install torch-scatter torch-sparse torch-cluster torch-geometric
+# Check if environment exists and activate it
+if [ -d "$ENV_PREFIX" ]; then
+    echo "✅ Conda environment exists at $ENV_PREFIX"
+    echo "Activating existing environment..."
+    conda activate "$ENV_PREFIX"
+    echo "✅ Successfully activated environment"
+else
+    echo "❌ Conda environment does not exist at $ENV_PREFIX"
+    echo "Creating new environment..."
+    conda create --prefix "$ENV_PREFIX" python=3.11 -y
+    conda activate "$ENV_PREFIX"
+    echo "✅ Created and activated new environment"
 fi
 
-# Install other required packages
-echo "Installing other dependencies..."
-pip install configargparse numpy
+# Check if PyTorch is already installed and working
+echo "Checking PyTorch installation..."
+python -c "import torch; print(f'PyTorch version: {torch.__version__}')" 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "PyTorch not found or broken, reinstalling..."
+    pip uninstall torch torch-scatter torch-sparse torch-cluster torch-geometric -y
+    pip install torch
+    pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
+fi
+
+# Install other required packages if not already installed
+echo "Checking other dependencies..."
+python -c "import configargparse" 2>/dev/null || pip install configargparse
+python -c "import numpy" 2>/dev/null || pip install numpy
 
 # Check CUDA availability
 echo "Checking CUDA availability..."
