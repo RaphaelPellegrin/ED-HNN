@@ -76,6 +76,7 @@ fi
 # Install PyTorch Geometric packages with specific versions
 echo "Installing PyTorch Geometric packages..."
 pip install torch-scatter==2.1.1 torch-sparse==0.6.17 -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
+pip install torch-geometric
 
 # Install other required packages if not already installed
 echo "Checking other dependencies..."
