@@ -73,6 +73,10 @@ if [ $? -ne 0 ]; then
     pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
 fi
 
+# Install PyTorch Geometric packages with specific versions
+echo "Installing PyTorch Geometric packages..."
+pip install torch-scatter==2.1.1 torch-sparse==0.6.17 -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
+
 # Install other required packages if not already installed
 echo "Checking other dependencies..."
 python -c "import configargparse" 2>/dev/null || pip install configargparse
