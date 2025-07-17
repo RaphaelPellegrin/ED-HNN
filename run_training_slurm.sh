@@ -73,15 +73,44 @@ if [ $? -ne 0 ]; then
     pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.7.1+cu121
 fi
 
-# Install PyTorch Geometric packages with specific versions
+# Fix NumPy version first (downgrade to avoid compatibility issues)
+echo "Fixing NumPy version..."
+pip install "numpy<2"
+
+# Reinstall PyTorch with a stable version
+echo "Reinstalling PyTorch with stable version..."
+pip uninstall torch torch-scatter torch-sparse torch-cluster torch-geometric -y
+echo "PyTorch uninstallation completed"
+
+echo "Installing PyTorch 2.0.1+cu118..."
+pip install torch==2.0.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+echo "PyTorch installation completed"
+
+# Verify PyTorch installation
+echo "Verifying PyTorch installation..."
+python -c "import torch; print(f'PyTorch version: {torch.__version__}')"
+echo "PyTorch verification completed"
+
+# Install PyTorch Geometric packages with compatible versions
 echo "Installing PyTorch Geometric packages..."
-pip install torch-scatter==2.1.1 torch-sparse==0.6.17 -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
-pip install torch-geometric
+# Try CPU version first since CUDA wheels might not be available
+pip install torch-scatter torch-sparse torch-cluster torch-geometric --index-url https://pytorch-geometric.com/whl/torch-2.0.1+cpu
+
+# If that fails, try the default installation
+if [ $? -ne 0 ]; then
+    echo "CPU version failed, trying default installation..."
+    pip install torch-scatter torch-sparse torch-cluster torch-geometric
+fi
+echo "PyTorch Geometric installation completed"
+
+# Verify PyTorch Geometric installation
+echo "Verifying PyTorch Geometric installation..."
+python -c "import torch_geometric; print('PyTorch Geometric imported successfully')"
+echo "PyTorch Geometric verification completed"
 
 # Install other required packages if not already installed
 echo "Checking other dependencies..."
 python -c "import configargparse" 2>/dev/null || pip install configargparse
-python -c "import numpy" 2>/dev/null || pip install numpy
 
 # Check CUDA availability
 echo "Checking CUDA availability..."
